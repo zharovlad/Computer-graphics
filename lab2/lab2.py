@@ -26,10 +26,10 @@ clock = pygame.time.Clock()
 all_sprites = pygame.sprite.Group() 
 
 # путь к obj файлу
-MODEL = 'model\\suzanne.obj'
+MODEL = 'model\\cylinder.obj'
 
 # Масштаб
-SCALE = 150
+SCALE = 20
 
 # Градус в радианах для матрицы вращения
 RADIAN = pi / 90
@@ -121,60 +121,6 @@ def draw():
                         pygame.draw.line(screen, COLORS[i % len(COLORS)], (x + WIDTH / 2, -y + HEIGHT / 2), \
                              (x + WIDTH / 2, -y + HEIGHT / 2))
 
-# В полигоне точка или нет
-def draw2():
-    """
-    Отрисовка модели
-    """
-    # Очистка экрана
-    screen.fill(BLACK)
-
-    # Каждый элемент соответствует пикселю на экране. Записывает удаленность (координату z)
-    z_buffer = [[-inf for _ in range(WIDTH)] for _ in range(HEIGHT)]
-    
-    # Для каждого полигона вычислим уравнение плоскости методом Ньюэла (a, b, c, d)
-    for i, surface in enumerate(surfaces):
-        v_poly = []
-        for corner in surface:
-            v_poly.append((vertices[corner][0], vertices[corner][1], vertices[corner][2]))                
-        a, b, c, d = newell(v_poly)
-
-        # Определим границы полигона
-        xmin = inf
-        ymin = inf
-        xmax = -inf
-        ymax = -inf
-
-        for corner in v_poly:
-            if corner[0] > xmax:
-                xmax = corner[0]
-
-            if corner[0] < xmin:
-                xmin = corner[0]
-
-            if corner[1] > ymax:
-                ymax = corner[1]
-
-            if corner[1] < ymin:
-                ymin = corner[1]
-        
-        xmin, xmax, ymin, ymax = round(xmin), round(xmax), round(ymin), round(ymax)
-        # Попиксельно вычисляем z для каждой точке в границе
-        for x in range(xmin, xmax):
-            for y in range(ymin, ymax):
-                # z = -(ax + by + d) / c
-                if c == 0:
-                    continue
-                z = -(a * x + b * y + d) / c
-                
-                # если z в данной области ближе 
-                if z > z_buffer[y][x]:
-                    # и если (x, y) принадлежит полигону
-                    if pointloc(v_poly, (x, y)):
-                        # записываем значение в z буффер и индекс поверхночти
-                        z_buffer[y][x] = z
-                        pygame.draw.line(screen, COLORS[i % len(COLORS)], (x + WIDTH / 2, -y + HEIGHT / 2), \
-                             (x + WIDTH / 2, -y + HEIGHT / 2))
 
 def pointloc(polygon, dot):
     result = False
